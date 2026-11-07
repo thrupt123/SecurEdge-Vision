@@ -1,0 +1,69 @@
+This comprehensive, step-by-step Setup and Deployment Guide will help you install the required environments, handle system dependencies, and run the securedge_pipeline.py script locally on your laptop.
+
+Step 1: Install Python and Verify Environment
+
+Ensure you have Python 3.9 or higher installed on your laptop.
+1. Open your terminal (Linux/macOS) or Command Prompt/PowerShell (Windows).
+2. Run the following command to check your version:python --version
+1. (Note: On some systems, you may need to type python3 --version).
+
+
+Step 2: Create a Isolated Virtual Environment
+
+Creating a virtual environment ensures that the packages required for SecurEdge-Vision do not conflict with other Python projects on your machine.
+1. Navigate to your project folder:cd path/to/your/project/folder
+Generate the virtual environment folder (named venv):python -m venv venv
+3. Activate the environment:
+	• Windows (Command Prompt):venv\Scripts\activate
+Windows (PowerShell):.\venv\Scripts\activate
+Linux / macOS:source venv/bin/activate
+Once activated, your terminal prompt will display (venv) at the beginning of the line.
+
+Step 3: Install Required Dependencies
+
+Upgrade your core package manager (pip) and install the essential libraries required for the pipeline frame processing, vector manipulation, and future UI building blocks.
+Run the following compound installation command inside your activated terminal:python -m pip install --upgrade pip
+pip install opencv-python numpy ultralytics streamlit
+
+Special Dependency Node: Face Recognition & Dlib Setup
+
+The face-recognition framework uses dlib as its heavy-duty compilation backend. Depending on your Operating System, run the corresponding command:
+• Windows Users:
+Installing dlib on Windows can sometimes throw C++ compiler errors if Visual Studio tools aren't configured. You can install pre-compiled binaries directly using:pip install CMake
+pip install https://github.com
+pip install face-recognition
+(Note: Replace the URL wheel with one matching your specific Python version if you run 3.11/3.12, or install "Desktop Development with C++" inside Visual Studio Community Installer).Linux (Ubuntu/Debian) Users:sudo apt update
+sudo apt install build-essential cmake libopenblas-dev libx11-dev
+pip install face-recognition
+macOS Users:brew install cmake
+pip install face-recognition
+
+Step 4: Save and Deploy the Script
+
+1. Create a new text file named securedge_pipeline.py inside your project folder.
+2. Paste the Python pipeline code provided in the previous turn into this file.
+3. Save and close the file.
+
+Step 5: Run the Deployment Pipeline Loop
+
+Execute the pipeline locally from your terminal window where the virtual environment is still active:python securedge_pipeline.py
+
+What to expect at runtime:
+
+1. Camera Authorization: Your operating system may prompt you for permission to let Python access your integrated laptop webcam. Grant the permission.
+2. Visual Window Stream: A new window titled "SecurEdge-Vision: Local Monitor Frame UI Buffer" will launch, projecting your webcam feed.
+3. Array Processing Metrics: The terminal console will begin scrolling rapidly, printing out individual frame calculations, array boundaries tracking, dynamic identity triage markers, and real-time alert changes.
+4. Bounding Canvas Visuals: The webcam window display will draw a green, orange, or red active bounding box border around the array canvas depending on the resolved triage tier.
+
+To Exit:
+
+• Click on the webcam visual display window and press the q key on your keyboard.
+• Alternatively, switch back to the command terminal window and hit Ctrl + C.
+Troubleshooting Edge Cases
+
+• Error: cv2.error: OpenCV(4.x.x) ... (-215:Assertion failed)
+	• Reason: The system cannot find or bind to your webcam index 0.
+	• Fix: Ensure no other software (like Zoom, Teams, or your browser) is actively locking the camera stream. If you use an external USB plug-in camera, change cv2.VideoCapture(0) to cv2.VideoCapture(1) inside the script logic.
+• Error: ModuleNotFoundError: No module named '...'
+	• Reason: The scripts are running outside the environment container.
+	• Fix: Verify that (venv) is explicitly visible in your command path prompt line before running the execution string.
