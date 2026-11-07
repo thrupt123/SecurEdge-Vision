@@ -1,0 +1,85 @@
+To prepare your custom dataset for Phase 2 (YOLOv8 Training) on Google Colab, you need a structured way to handle image data and annotations. Since downloading heavy local GUI tools (like LabelImg) can introduce dependency conflicts, the standard industry practice is to use an automated Python script to structure your directories, paired with a web-based annotation workflow.
+Here is the complete Data Structuring Script and deployment framework to organize and annotate your images into the exact bounding box format required by YOLOv8.
+
+Step 1: Run the YOLOv8 Directory Structuring Script
+
+Save this script as structure_dataset.py in your project folder and run it. It automatically sets up the unified folder hierarchy required by the YOLOv8 training architecture.#!/usr/bin/env python3
+"""
+Project: SecurEdge-Vision (Phase 2 Data Preparation)
+Description: Automates the creation of the standard YOLOv8 directory structure 
+             for custom threat vector images and annotation text files.
+"""
+
+import os
+import shutil
+
+def create_yolo_directories():
+    # Define root path structures
+    base_dir = os.path.join(os.getcwd(), "SecurEdge_Dataset")
+    
+    # Standard YOLOv8 splits
+    subfolders = [
+        "images/train", "images/val",
+        "labels/train", "labels/val"
+    ]
+    
+    print(f"[INFO] Initializing dataset root at: {base_dir}")
+    
+    # Generate clean folders
+    for folder in subfolders:
+        target_path = os.path.join(base_dir, folder)
+        if not os.path.exists(target_path):
+            os.makedirs(target_path)
+            print(f" ├─ Created directory: {folder}")
+        else:
+            print(f" ├─ Directory exists: {folder}")
+            
+    # Generate the critical configuration file (data.yaml) for Google Colab
+    yaml_content = f"""# SecurEdge-Vision Custom Threat Dataset Config
+path: {base_dir}
+train: images/train
+val: images/val
+
+# Target threat vectors bounding classes
+names:
+  0: Pistol
+  1: Heavy Weapon
+  2: Fire Hazard
+"""
+    
+    yaml_path = os.path.join(base_dir, "data.yaml")
+    with open(yaml_path, "w") as f:
+        f.write(yaml_content.strip())
+        
+    print(f"[SUCCESS] Dataset folder architecture complete! Configuration written to: data.yaml")
+    print("[ACTION] Place your images and matching bounding box .txt files inside these folders.")
+
+if __name__ == "__main__":
+    create_yolo_directories()
+
+Step 2: The Annotation Workflow (Roboflow Method)
+
+Instead of dealing with local installation problems, the easiest way to generate the bounding boxes for YOLOv8 is using Roboflow (a free, web-based tool perfectly optimized for Colab).
+1. Gather Images: Collect your target imagery (e.g., weapon vectors, fire occurrences) via public datasets or custom captures. Aim for a baseline of 100–200 images per class for your Phase-1 baseline.
+2. Upload: Go to Roboflow, create a free account, start a project named SecurEdge-Vision, and upload your raw image folders.
+3. Draw Bounding Boxes: Use the web interface to drag rectangles closely around the target areas. Label them precisely matching your indexes:
+	• Pistol
+	• Heavy Weapon
+	• Fire Hazard
+4. Split Data: Roboflow will automatically divide your data into a balanced split: 80% Train (for model optimization) and 20% Val (for validation monitoring).1. Export Format: Click Export Dataset, select the YOLOv8 format, and download the structured zip package (or copy its direct download token code).
+
+Step 3: Understanding the YOLO Bounding Box Structure
+
+When you export or save your manual labels, each image will have a corresponding .txt file with the exact same name (e.g., frame_001.jpg maps to frame_001.txt). Inside that text file, each detected object is written as a single line using normalized coordinates (scaled between 0.0 and 1.0):
+\(\text{Format:\ }\langle \text{class\_id}\rangle \quad \langle \text{x\_center}\rangle \quad \langle \text{y\_center}\rangle \quad \langle \text{width}\rangle \quad \langle \text{height}\rangle \)
+• Example Entry (frame_001.txt):0 0.452 0.612 0.120 0.280
+2 0.810 0.340 0.350 0.510
+• 
+	• Line 1: A Pistol (Class 0) is centered at 45.2% width, 61.2% height, taking up 12% width and 28% height of the total frame canvas.
+	• Line 2: A Fire Hazard (Class 2) is also present in another region of the same frame matrix.
+
+Step 4: Zip and Move to Google Colab
+
+Once your SecurEdge_Dataset folder contains the populated images and labels subdirectories along with data.yaml:
+1. Compress the root directory into a single archive file: SecurEdge_Dataset.zip.
+2. Upload this zip file directly to your Google Drive so it can be unzipped instantly inside your Google Colab training notebook for Phase 2 processing.
