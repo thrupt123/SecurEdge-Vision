@@ -1,0 +1,177 @@
+ere is the complete, copy-pasteable Phase-1 local edge inference pipeline code.
+This script implements the core logic described in your synopsis: it sets up an OpenCV frame buffer loop, runs dummy/mock processing structures for the 128-D face embedding distances and YOLOv8 object boundaries, aggregates them into your Dynamic Classification Array, and prints the current status directly to the console buffer.
+Save this file as securedge_pipeline.py. You can run it on your laptop using standard Python without needing a GPU.#!/usr/bin/env python3
+"""
+Project: SecurEdge-Vision
+Phase: 1 Core Edge Inference Pipeline Baseline
+Description: Local frame ingestion loop using OpenCV, performing mock matrix 
+             computations for 128-D face Euclidean matching and object detection 
+             to populate the Dynamic Classification Array and Alert Matrix.
+"""
+
+import cv2
+import time
+import numpy as np
+
+# --- SYSTEM CONFIGURATION CONSTANTS ---
+FRAME_WIDTH = 640
+FRAME_HEIGHT = 480
+EUCLIDEAN_THRESHOLD = 0.6  # Standard threshold for 128-D face recognition
+DETECTION_CONFIDENCE = 0.5
+
+# --- DYNAMIC ARRAYS & CLASSIFICATION MATRICES ---
+CLASSIFICATION_TIERS = {
+    1: "Core Owner",
+    2: "Family Member",
+    3: "Courier Agent",
+    4: "Threat / Intruder"
+}
+
+ALERT_MATRIX = {
+    "LEVEL_1": "SECURE_DASHBOARD_NORMAL",
+    "LEVEL_2": "COURIER_PRESENT_LOGGED",
+    "LEVEL_3": "UNRECOGNIZED_FACE_ALERT",
+    "LEVEL_4": "CRITICAL_ARMED_INTRUDER_WARN"
+}
+
+def compute_mock_face_encoding():
+    """Simulates the extraction of a 128-Dimensional Euclidean vector matrix."""
+    return np.random.uniform(-1.0, 1.0, 128)
+
+def evaluate_identity_tier(face_vector):
+    """
+    Simulates calculating Euclidean distance against a local whitelist database.
+    Returns: (Matched Tier ID, Confidence/Distance Value)
+    """
+    # Simulate a distance value. Lower distance means a closer match.
+    simulated_distance = np.random.rand()
+    
+    if simulated_distance < 0.2:
+        return 1, simulated_distance  # Matches Core Owner database records
+    elif simulated_distance < 0.4:
+        return 2, simulated_distance  # Matches Family Member database records
+    elif simulated_distance < 0.6:
+        return 3, simulated_distance  # Matches Courier Agent profile
+    else:
+        return 4, simulated_distance  # Unrecognized face matrix profile
+
+def execute_mock_yolo_inference():
+    """
+    Simulates YOLOv8 spatial parsing for specific threat vector objects.
+    Returns: (Hazard Detected True/False, Hazard Label String)
+    """
+    probability = np.random.rand()
+    # 5% chance of triggering a mock threat event per frame slice
+    if probability > 0.95:
+        threat_types = ["Pistol", "Heavy Weapon", "Fire Hazard"]
+        return True, np.random.choice(threat_types)
+    return False, "None"
+
+def resolve_alert_escalation(tier_id, threat_active):
+    """
+    Evaluates the Dynamic Classification Array state alongside threat parameters
+    to calculate the matching UI Alert Matrix output tier.
+    """
+    if threat_active:
+        return "LEVEL_4"  # Any weapon/hazard bypasses identity configurations
+    elif tier_id == 4:
+        return "LEVEL_3"  # Stranger present with no visible weapon signatures
+    elif tier_id == 3:
+        return "LEVEL_2"  # Courier delivery worker validated
+    else:
+        return "LEVEL_1"  # Authorized system users active
+
+def main():
+    print("=====================================================================")
+    print(" SECUREDGE-VISION: PHASE-1 EDGE INFERENCE INTERACTIVE ENGINE BASELINE")
+    print("=====================================================================")
+    print("[INFO] Loading mock YOLOv8 weights configurations...")
+    print("[INFO] Loading 128-D whitelist facial vector array parameters...")
+    
+    # Initialize the local frame capture loop via laptop webcam (Index 0)
+    video_capture = cv2.VideoCapture(0)
+    
+    # Set video array boundary sizes
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, FRAME_WIDTH)
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, FRAME_HEIGHT)
+    
+    if not video_capture.isOpened():
+        print("[ERROR] Camera buffer binding failed. Falling back to matrix simulation mode.")
+        print("[INFO] Press Ctrl+C to terminate the software sequence.")
+        simulation_mode = True
+    else:
+        print("[INFO] OpenCV Input Video Buffer bound successfully.")
+        print("[INFO] Live tracking running. Press 'q' inside the display window to exit.")
+        simulation_mode = False
+
+    frame_count = 0
+    
+    try:
+        while True:
+            frame_count += 1
+            
+            if not simulation_mode:
+                success, frame = video_capture.read()
+                if not success:
+                    print("[WARN] Empty frame captured from camera channel stream.")
+                    continue
+            else:
+                # Simulate processing delay to match video pacing structures
+                time.sleep(0.033)
+                frame = np.zeros((FRAME_HEIGHT, FRAME_WIDTH, 3), dtype=np.uint8)
+            
+            # --- ENGINE PROCESSING LAYERS ---
+            # 1. 128-D Facial Vector Extraction
+            face_encoding = compute_mock_face_encoding()
+            identity_tier, computed_distance = evaluate_identity_tier(face_encoding)
+            identity_label = CLASSIFICATION_TIERS[identity_tier]
+            
+            # 2. YOLOv8 Threat Array Target Scanning
+            threat_detected, threat_label = execute_mock_yolo_inference()
+            
+            # 3. Dynamic Classification Array Logic Resolution
+            current_alert_level = resolve_alert_escalation(identity_tier, threat_detected)
+            action_system = ALERT_MATRIX[current_alert_level]
+            
+            # --- CONSOLE METADATA REPORTING ---
+            print(f"\n[FRAME: {frame_count:04d}] Data Pipeline Matrices Summary:")
+            print(f" ├─ Identity Extraction : {identity_label} (Dist: {computed_distance:.2f})")
+            print(f" ├─ YOLO Threat Parser  : Threat={threat_detected} [Target: {threat_label}]")
+            print(f" └─ Escalation State    : {current_alert_level} -> {action_system}")
+            
+            # --- VISUAL BOUNDING OVERLAYS (OpenCV Canvas Rendering) ---
+            # Generate visual context elements for visual verification
+            status_color = (0, 255, 0)  # Green for normal system parameters
+            if current_alert_level == "LEVEL_3":
+                status_color = (0, 165, 255)  # Orange for unverified identities
+            elif current_alert_level == "LEVEL_4":
+                status_color = (0, 0, 255)  # Red for high severity violations
+                
+            # Embed real-time classification properties onto the frame pixels
+            cv2.putText(frame, f"Identity: {identity_label}", (20, 40), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
+            cv2.putText(frame, f"Threat: {threat_label}", (20, 70), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
+            cv2.putText(frame, f"Alert Level: {current_alert_level}", (20, 100), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, status_color, 2)
+            
+            # Draw standard screen boundaries tracking canvas stability
+            cv2.rectangle(frame, (10, 10), (FRAME_WIDTH - 10, FRAME_HEIGHT - 10), status_color, 2)
+            
+            # Render visual window framework if active device parameters allow
+            if not simulation_mode:
+                cv2.imshow("SecurEdge-Vision: Local Monitor Frame UI Buffer", frame)
+                # Break termination loop sequence using standard key bindings ('q')
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+                    
+    except KeyboardInterrupt:
+        print("\n[INFO] Software pipeline processing safely suspended via user terminal interrupt.")
+    finally:
+        # Release system access allocations
+        video_capture.release()
+        cv2.destroyAllWindows()
+        print("[INFO] Hardware resource boundaries cleared. System operational loop shut down cleanly.")
+
+if __name__ == "__main__":
+    main()
